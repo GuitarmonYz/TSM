@@ -15,8 +15,8 @@ function [ y ] = WSOLA_Driedger( x, N, TSM )
 %User Parameters
 alpha = 1/TSM;
 wn = 0.5*(1 - cos(2*pi*(0:N-1)'/(N-1))); %hanning window
-Ss = N/2;               %Synthesis hop
-tol = N/2;              %Tolerance
+Ss = N/4;               %Synthesis hop
+tol = N/4;              %Tolerance
 %Setup
 Output_length = ceil(alpha*length(x));
 sPosWin = 1:Ss:Output_length+N/2;     %array of synthesis positions
@@ -28,14 +28,14 @@ minFac = min(Ss./Sa);
 xC = [zeros(N/2 + tol,1) ; x; zeros(ceil(1/minFac)*N+tol,1)];
 aPosWin = aPosWin + tol;
 yC = zeros(Output_length + 2*N, 1);
-ow = zeros(Output_length + 2*N, 1);
+% ow = zeros(Output_length + 2*N, 1);
 delta = 0;
 for n = 1:length(aPosWin)-1
     curr_syn_win_range = sPosWin(n):sPosWin(n) + N-1;
     curr_ana_win_range = aPosWin(n)+delta:aPosWin(n)+delta+N-1;
     %OLA
     yC(curr_syn_win_range) = yC(curr_syn_win_range)+xC(curr_ana_win_range).*wn;
-    ow(curr_syn_win_range) = ow(curr_syn_win_range)+wn;
+%     ow(curr_syn_win_range) = ow(curr_syn_win_range)+wn;
     natProg = xC(curr_ana_win_range + Ss);
     next_ana_win_range = aPosWin(n+1)-tol:aPosWin(n+1)+tol+N-1;
     next_ana_window = xC(next_ana_win_range);
@@ -49,14 +49,11 @@ for n = 1:length(aPosWin)-1
 end
 %Process the last frame
 yC(sPosWin(end):sPosWin(end)+N-1) = yC(sPosWin(end):sPosWin(end)+N-1) + xC(aPosWin(n)+delta:aPosWin(n)+delta+N-1).*wn;
-ow(sPosWin(end):sPosWin(end)+N-1) = ow(sPosWin(end):sPosWin(end)+N-1) + wn;
+% ow(sPosWin(end):sPosWin(end)+N-1) = ow(sPosWin(end):sPosWin(end)+N-1) + wn;
 %Normalise the output
-ow(ow<10^-3) = 1; % avoid potential division by zero
-yC = yC./ow;
+% ow(ow<10^-3) = 1; % avoid potential division by zero
+% yC = yC./ow;
 %Remove zero padding
-yC = yC(N/2+1:end);
-yC = yC(1:length(y));
-y = yC;
+y = yC(N/2+1:length(y)+N/2);
 y = y(N+1:end)/max(abs(y));
-
 end
