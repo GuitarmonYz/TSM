@@ -55,5 +55,5 @@ yC(sPosWin(end):sPosWin(end)+N-1) = yC(sPosWin(end):sPosWin(end)+N-1) + xC(aPosW
 % yC = yC./ow;
 %Remove zero padding
 y = yC(N/2+1:length(y)+N/2);
-y = y(N+1:end)/max(abs(y));
+% y = y(N+1:end)/max(abs(y));
 end
